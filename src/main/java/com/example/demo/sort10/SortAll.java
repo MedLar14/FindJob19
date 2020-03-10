@@ -1,8 +1,5 @@
 package com.example.demo.sort10;
 
-import org.springframework.stereotype.Component;
-
-import java.lang.annotation.Target;
 import java.util.Arrays;
 
 public class SortAll {
@@ -159,7 +156,7 @@ public class SortAll {
         if (array.length < 2) {
             return array;
         }
-        QuickSortWithStartEnd(array, 0, array.length);
+        QuickSortWithStartEnd(array, 0, array.length - 1);
         return array;
     }
 
@@ -167,9 +164,37 @@ public class SortAll {
         if (start >= end) {
             return;
         }
-        int partitionIndex = Partition(array, start, end);
+        int partitionIndex = PartitionScan(array, start, end);
         QuickSortWithStartEnd(array, start, partitionIndex - 1);
         QuickSortWithStartEnd(array, partitionIndex + 1, end);
+    }
+
+    /**
+     * 快速排序-分区，从前往后扫描
+     *
+     * @param array
+     * @param start
+     * @param end
+     * @return
+     */
+    private int Partition(int[] array, int start, int end) {
+        int stardard = array[end - 1];
+        int index = start - 1;
+        for (int i = start; i < end; i++) {
+            if (array[i] < stardard) {
+                index++;
+                if (i > index) {
+                    swap(array, i, index);
+                }
+            }
+        }
+        return index;
+    }
+
+    private void swap(int[] array, int i, int j) {
+        int temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
     }
 
     /**
@@ -180,63 +205,42 @@ public class SortAll {
      * @param end
      * @return
      */
-    private int Partition(int[] array, int start, int end) {
-        int stardard = array[end - 1];
-        int index = start;
-        for (int i = start + 1; i < end; i++) {
-            if (array[i] < stardard) {
-                swap(array, i, index);
-                index++;
+    private int PartitionScan(int[] array, int start, int end) {
+        int datum = array[end];
+        while (start < end) {
+            while (start < end && array[start] <= datum) {
+                start++;
             }
+            array[end] = array[start];
+            while (start < end && array[end] >= datum) {
+                end--;
+            }
+            array[start] = array[end];
         }
-        return 0;
+        array[end] = datum;
+        return end;
     }
-
-    private void swap(int[] array, int i, int j) {
-        int temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
-
 
     /**
-     * 快速排序方法
-     *
+     * 堆排序
      * @param array
-     * @param start
-     * @param end
      * @return
      */
-    public  int[] QuickSort1(int[] array, int start, int end) {
-        if (array.length < 1 || start < 0 || end >= array.length || start > end) return null;
-        int smallIndex = partition1(array, start, end);
-        if (smallIndex > start)
-            QuickSort1(array, start, smallIndex - 1);
-        if (smallIndex < end)
-            QuickSort1(array, smallIndex + 1, end);
+    public int[] HeapSort(int[] array) {
+        int len = array.length;
+        buildMaxHeap(array);
         return array;
     }
 
-    /**
-     * 快速排序算法——partition
-     *
-     * @param array
-     * @param start
-     * @param end
-     * @return
-     */
-    private int partition1(int[] array, int start, int end) {
-        int pivot = (int) (start + Math.random() * (end - start + 1));
-        int smallIndex = start - 1;
-        swap(array, pivot, end);
-        for (int i = start; i <= end; i++)
-            if (array[i] <= array[end]) {
-                smallIndex++;
-               // if (i > smallIndex)
-                    swap(array, i, smallIndex);
-            }
-        return smallIndex;
+    private void buildMaxHeap(int[] array) {
+        for (int i = array.length/2-1; i >=0; i--) {
+            adjustHeap(array,i);
+        }
     }
 
+    private void adjustHeap(int[] array,int i) {
+
+
+    }
 
 }
