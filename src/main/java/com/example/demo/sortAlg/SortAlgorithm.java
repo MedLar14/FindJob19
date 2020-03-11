@@ -1,8 +1,10 @@
-package com.example.demo.sort10;
+package com.example.demo.sortAlg;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
-public class SortAll {
+public class SortAlgorithm {
 
     /**
      * 冒泡
@@ -181,6 +183,7 @@ public class SortAll {
         int stardard = array[end - 1];
         int index = start - 1;
         for (int i = start; i < end; i++) {
+            //不好理解
             if (array[i] < stardard) {
                 index++;
                 if (i > index) {
@@ -207,6 +210,7 @@ public class SortAll {
      */
     private int PartitionScan(int[] array, int start, int end) {
         int datum = array[end];
+        //逻辑较为直观s
         while (start < end) {
             while (start < end && array[start] <= datum) {
                 start++;
@@ -222,25 +226,182 @@ public class SortAll {
     }
 
     /**
-     * 堆排序
+     * 堆排序-最大堆
+     *
      * @param array
      * @return
      */
     public int[] HeapSort(int[] array) {
         int len = array.length;
+        //初始化
         buildMaxHeap(array);
+        while (len > 0) {
+            //最大堆，顶部放到最后
+            swap(array, 0, len - 1);
+            len--;
+            //注意尾部边界
+            adjustHeap(array, 0, len - 1);
+        }
         return array;
     }
 
+    /**
+     * 堆排序-初始化最大堆
+     *
+     * @param array
+     */
     private void buildMaxHeap(int[] array) {
-        for (int i = array.length/2-1; i >=0; i--) {
-            adjustHeap(array,i);
+        //非叶子节点开始
+        for (int i = array.length / 2 - 1; i >= 0; i--) {
+            adjustHeap(array, i, array.length - 1);
         }
     }
 
-    private void adjustHeap(int[] array,int i) {
-
-
+    /**
+     * 堆排序-调整最大堆
+     *
+     * @param array
+     * @param i
+     * @param bound
+     */
+    private void adjustHeap(int[] array, int i, int bound) {
+        int maxIndex = i;
+        //左叶子节点
+        if ((2 * i + 1) <= bound && array[2 * i + 1] > array[maxIndex]) {
+            maxIndex = 2 * i + 1;
+        }
+        //右叶子节点
+        if ((2 * i + 2) <= bound && array[2 * i + 2] > array[maxIndex]) {
+            maxIndex = 2 * i + 2;
+        }
+        if (maxIndex != i) {
+            swap(array, i, maxIndex);
+            //继续调整
+            adjustHeap(array, maxIndex, bound);
+        }
     }
+
+    /**
+     * 计数排序
+     *
+     * @param array
+     * @return
+     */
+    public int[] CountSort(int[] array) {
+        int max = array[0];
+        int min = array[0];
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] > max) {
+                max = array[i];
+                continue;
+            }
+            if (array[i] < min) {
+                min = array[i];
+            }
+        }
+        int[] newCount = new int[max - min + 1];
+        for (int i = 0; i < array.length; i++) {
+            newCount[array[i] - min]++;
+        }
+        int index = 0;
+        for (int i = 0; i < newCount.length; i++) {
+            if (newCount[i] <= 0) {
+                continue;
+            }
+            for (int j = 0; j < newCount[i]; j++) {
+                array[index] = min + i;
+                index++;
+            }
+        }
+        return array;
+    }
+
+    /**
+     * 桶排序，分而治之，桶内排序使用其他排序算法
+     *
+     * @param array
+     * @return
+     */
+    public int[] BucketSort(int[] array) {
+        int max = array[0];
+        int min = array[0];
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] > max) {
+                max = array[i];
+                continue;
+            }
+            if (array[i] < min) {
+                min = array[i];
+            }
+        }
+        int bucketSize = 5;
+        int bucketCount = (max - min) / bucketSize + 1;
+        int sizeArra = (int) (bucketCount / 0.7);
+        ArrayList<ArrayList<Integer>> bucket = new ArrayList<>(sizeArra);
+        //放桶
+        for (int i = 0; i < bucketCount; i++) {
+            bucket.add(new ArrayList<>());
+        }
+        for (int i = 0; i < array.length; i++) {
+            int index = (array[i] - min) / bucketSize;
+            ArrayList<Integer> tmp = bucket.get(index);
+            tmp.add(array[i]);
+        }
+        //桶排序，抽取
+        int addIndex = 0;
+        for (int i = 0; i < bucketCount; i++) {
+            ArrayList<Integer> tmp = bucket.get(i);
+            if (tmp != null) {
+                //桶内排序
+                Collections.sort(tmp);
+                for (Integer a : tmp) {
+                    array[addIndex] = a;
+                    addIndex++;
+                }
+            }
+        }
+        return array;
+    }
+
+    /**
+     * 基数排序
+     *
+     * @param array
+     * @return
+     */
+    public int[] RadixSort(int[] array) {
+        int max = array[0];
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] > max) {
+                max = array[i];
+            }
+        }
+        int maxLength = String.valueOf(max).length();
+        int bucketCount = 10;
+        ArrayList<ArrayList<Integer>> bucket = new ArrayList<>();
+        for (int i = 0; i < bucketCount; i++) {
+            bucket.add(new ArrayList<>());
+        }
+        for (int i = 0; i < maxLength; i++) {
+            //放
+            for (int j = 0; j < array.length; j++) {
+                int index = (array[j] / (int) Math.pow(10, i) % 10);
+                ArrayList<Integer> tmp = bucket.get(index);
+                tmp.add(array[j]);
+            }
+            //取
+            int addIndex = 0;
+            for (int j = 0; j < bucket.size(); j++) {
+                ArrayList<Integer> tmp = bucket.get(j);
+                for (Integer tmpInt : tmp) {
+                    array[addIndex] = tmpInt;
+                    addIndex++;
+                }
+                tmp.clear();
+            }
+        }
+        return array;
+    }
+
 
 }
