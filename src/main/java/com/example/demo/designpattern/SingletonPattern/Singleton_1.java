@@ -23,4 +23,16 @@ public class Singleton_1 {
         }
         return instace;
     }
+
+    public static Singleton_1 getInstance3() {
+        if (instace == null) {
+            synchronized (Singleton_1.class) {
+                if (instace == null) {
+                    instace = new Singleton_1();
+                }
+            }
+        }
+        return instace;
+    }
+
 }
